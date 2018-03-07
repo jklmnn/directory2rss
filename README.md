@@ -46,3 +46,7 @@ http://localhost:5000/?url=<directory url>&user=<basic auth user name>&pass=<bas
 ### Example
 
 To read a feed of `https://example.com/some_directory` just add `http://localhost:5000/?url=https://example.com/some_directory` to your feed reader.
+
+### Screenshot
+
+![directory2rss on firefox and akregator](https://github.com/jklmnn/directory2rss/raw/master/d2rss.png)
