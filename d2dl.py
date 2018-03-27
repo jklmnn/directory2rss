@@ -10,13 +10,14 @@ import re
 def get_entries(content, match):
     soup = BeautifulSoup(content, "lxml")
     rows = soup.find_all("tr")
-    return filter(lambda entry: entry != '/' and match.search(entry) if match else True, [row.find_all("a")[0]['href'] for row in rows[2:-1]])
+    return filter(lambda entry: entry != '/' and match.search(entry) if match else True,
+            [row.find_all("a")[0]['href'] for row in rows[2:-1]])
 
 def fetch(url, username, password, verify, match):
     if username and password:
         content  = requests.get(url, auth=(username, password), verify=verify)
     else:
-        content  = requests.get(url, verify=False)
+        content  = requests.get(url, verify=verify)
 
     return [entry if entry.startswith("http") else url + entry for entry in get_entries(content.text, match)]
 
