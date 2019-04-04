@@ -19,7 +19,7 @@ def fetch(url, username, password, verify, match):
     else:
         content  = requests.get(url, verify=verify)
 
-    return [entry if entry.startswith("http") else url + entry for entry in get_entries(content.text, match)]
+    return [entry if entry.startswith("http") else url + ("" if url.endswith("/") else "/") + entry for entry in get_entries(content.text, match)]
 
 def run(url, username, password, verify, recursive, quotes, curl, match):
     for link in fetch(url, username, password, verify, match):
