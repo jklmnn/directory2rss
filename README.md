@@ -21,12 +21,11 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 ## Setup
 
-Install the following Python 3 packages through your preferred package manager:
-
- - `requests`
- - `bs4`
- - `flask`
- - `PyRSS2Gen`
+```
+$ virtualenv venv
+$ . venv/bin/activate
+$ pip install -r requirements.txt
+```
 
 ### Configuration
 
@@ -38,10 +37,10 @@ To start, run `./d2rss.py`.
 
 To add a feed to your preferred feed reader add:
 ```
-http://localhost:5000/?url=<directory url>&user=<basic auth user name>&pass=<basic auth password>
+http://localhost:5000/?url=<directory url>[&noverify=yes]
 ```
 
-`user` and `pass` are only required if the directory index is protected by basic authentication.
+If `noverify` is added and set to `yes` HTTPS connections will not be verified.
 
 ### Example
 
@@ -50,3 +49,21 @@ To read a feed of `https://example.com/some_directory` just add `http://localhos
 ### Screenshot
 
 ![directory2rss on firefox and akregator](https://github.com/jklmnn/directory2rss/raw/master/d2rss.png)
+
+# directory2download
+
+directory2download is a tool that uses similar mechanisms as directory2rss to read Apache and Nginx index pages to provide an automatic download tool for their contents. It prints all links it finds to stdout to be used with other tools.
+
+## Usage
+
+```
+usage: d2dl.py [-h] [--recursive] [--noverify] [--quote] [--curl]
+               [--match MATCH]
+               URL
+```
+ - `-h` help
+ - `--recursive` go down directories recursively
+ - `--noverify` don't verify HTTPS certificates
+ - `--quote` print urls in quote for shell use
+ - `--curl` call curl on each url if it is a file
+ - `--match` only use urls that match a given regular expression, the expression must match the whole link including hostname and protocol
