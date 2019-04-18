@@ -1,11 +1,10 @@
 #!/usr/bin/env python3
 
-import requests
-from bs4 import BeautifulSoup
 import sys
 import argparse
 import os
 import re
+import d2
 
 def get_entries(content, match):
     soup = BeautifulSoup(content, "lxml")
@@ -22,11 +21,7 @@ def get_entries(content, match):
         return [r['href'] for r in rows]
 
 def fetch(url, username, password, verify, match):
-    if username and password:
-        content  = requests.get(url, auth=(username, password), verify=verify)
-    else:
-        content  = requests.get(url, verify=verify)
-
+    content = d2.fetch_content(url, username, password, verify)
     return [entry if entry.startswith("http") else url + ("" if url.endswith("/") else "/") + entry for entry in get_entries(content.text, match)]
 
 def run(url, username, password, verify, recursive, quotes, curl, match):
