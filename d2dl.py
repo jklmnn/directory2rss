@@ -10,8 +10,16 @@ import re
 def get_entries(content, match):
     soup = BeautifulSoup(content, "lxml")
     rows = soup.find_all("tr")
-    return filter(lambda entry: entry != '/' and match.search(entry) if match else True,
-            [row.find_all("a")[0]['href'] for row in rows[2:-1]])
+    if rows:
+        # Apache
+        return filter(lambda entry: entry != '/' or match.search(entry) if match else entry != '/',
+                [row.find_all("a")[0]['href'] for row in rows[3:-1]])
+    else:
+        # Nginx
+        rows = soup.find_all("a")
+        if rows[0]['href'] == "../":
+            rows = rows[1:]
+        return [r['href'] for r in rows]
 
 def fetch(url, username, password, verify, match):
     if username and password:
