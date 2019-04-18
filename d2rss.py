@@ -8,8 +8,8 @@ import d2
 
 app = Flask(__name__)
 
-def get_entries(url, username, password):
-    content = d2.fetch_content(url, username, password, False)
+def get_entries(url, username, password, verify):
+    content = d2.fetch_content(url, username, password, verify)
     soup = BeautifulSoup(content.text, "lxml")
     rows = soup.find_all("tr")
     entries = []
@@ -17,7 +17,7 @@ def get_entries(url, username, password):
         # Apache
         for row in rows[3:-1]:
             if row.find_all("a")[0]['href'].endswith("/"):
-                entries.extend(get_entries(url + ("" if url.endswith("/") else "/") + row.find_all("a")[0]['href'], username, password))
+                entries.extend(get_entries(url + ("" if url.endswith("/") else "/") + row.find_all("a")[0]['href'], username, password, verify))
             else:
                 entries.append(PyRSS2Gen.RSSItem(
                     title = row.find_all("a")[0].text,
@@ -31,21 +31,21 @@ def get_entries(url, username, password):
             rows = rows[1:]
         for row in rows:
             if row['href'].endswith("/"):
-                entries.extend(get_entries(url + ("" if url.endswith("/") else "/") + row['href'], username, password))
+                entries.extend(get_entries(url + ("" if url.endswith("/") else "/") + row['href'], username, password, verify))
             else:
                 entries.append(PyRSS2Gen.RSSItem(
-                    title = row.text,
+                    title = row['href'],
                     link = row['href'],
                     guid = PyRSS2Gen.Guid(row.text),
                     pubDate = datetime.datetime.strptime(" ".join(row.next_sibling.strip(" ").split(" ")[0:2]), "%d-%b-%Y %H:%M")))
     return entries
 
-def fetch(url, username, password):
+def fetch(url, username, password, verify):
     return PyRSS2Gen.RSS2(
             title = url,
             link = url,
             lastBuildDate = datetime.datetime.now(),
-            items = get_entries(url, username, password),
+            items = get_entries(url, username, password, verify),
             description = ""
             )
 
@@ -55,8 +55,9 @@ def get_data():
     url = request.args.get("url")
     username = request.args.get("user")
     password = request.args.get("pass")
+    noverify = request.args.get("noverify")
     if url:
-        return fetch(url, username, password).to_xml()
+        return fetch(url, username, password, noverify != "yes").to_xml()
     return "no url specified"
 
 
