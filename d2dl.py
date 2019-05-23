@@ -12,14 +12,14 @@ def get_entries(content, match):
     rows = soup.find_all("tr")
     if rows:
         # Apache
-        return filter(lambda entry: entry != '/' or match.search(entry) if match else entry != '/',
-                [row.find_all("a")[0]['href'] for row in rows[3:-1]])
+        rows = [row.find_all("a")[0]['href'] for row in rows[3:-1]]
     else:
         # Nginx
         rows = soup.find_all("a")
         if rows[0]['href'] == "../":
             rows = rows[1:]
-        return [r['href'] for r in rows]
+        rows = [r['href'] for r in rows]
+    return filter(lambda entry: entry.endswith('/') or (match.search(entry) if match else entry != '/'), rows)
 
 def fetch(url, verify, match):
     content  = requests.get(url, verify=verify)
@@ -28,7 +28,8 @@ def fetch(url, verify, match):
 def run(url, verify, recursive, quotes, curl, match):
     for link in fetch(url, verify, match):
         quote = "\"" if quotes else ""
-        print(quote + link + quote)
+        if not link.endswith('/'):
+            print(quote + link + quote)
         if recursive and link.endswith("/"):
             run(link, verify, recursive, quotes, curl, match)
         elif curl:
