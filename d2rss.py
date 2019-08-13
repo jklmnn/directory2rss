@@ -5,6 +5,7 @@ from bs4 import BeautifulSoup
 from flask import Flask, request
 import PyRSS2Gen
 import datetime
+from urllib.parse import unquote
 
 app = Flask(__name__)
 
@@ -20,7 +21,7 @@ def get_entries(url, verify):
                 entries.extend(get_entries(url + ("" if url.endswith("/") else "/") + row.find_all("a")[0]['href'], verify))
             else:
                 entries.append(PyRSS2Gen.RSSItem(
-                    title = row.find_all("a")[0].text,
+                    title = unquote(row.find_all("a")[0].text),
                     link = url + ("" if url.endswith("/") else "/") + row.find_all("a")[0]['href'],
                     guid = PyRSS2Gen.Guid(row.find_all("a")[0].text),
                     pubDate = datetime.datetime.strptime(row.find_all("td")[2].text.strip(), "%Y-%m-%d %H:%M")))
@@ -34,7 +35,7 @@ def get_entries(url, verify):
                 entries.extend(get_entries(url + ("" if url.endswith("/") else "/") + row['href'], verify))
             else:
                 entries.append(PyRSS2Gen.RSSItem(
-                    title = row['href'],
+                    title = unquote(row['href']),
                     link = url + ("" if url.endswith("/") else "/") + row['href'],
                     guid = PyRSS2Gen.Guid(row.text),
                     pubDate = datetime.datetime.strptime(" ".join(row.next_sibling.strip(" ").split(" ")[0:2]), "%d-%b-%Y %H:%M")))
